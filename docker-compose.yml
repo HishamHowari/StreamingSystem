@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  dockerDB:
+    image: mysql:8.3
+    container_name: dockerDB
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: docker-database
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
+
+  uploadvideo:
+    build: ./uploadvideo
+    container_name: uploadvideo
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://dockerDB:3306/docker-database?autoReconnect=true&useSSL=false
+    depends_on:
+      - dockerDB
+      - authenticationservice
+      - filesystemservice
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  videostreaming:
+    build: ./videostreaming
+    container_name: videostreaming
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://dockerDB:3306/docker-database?autoReconnect=true&useSSL=false
+    depends_on:
+      - dockerDB
+      - authenticationservice
+      - filesystemservice
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  authenticationservice:
+    build: ./authenticationservice
+    container_name: authenticationservice
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  filesystemservice:
+    build: ./filesystemservice
+    container_name: filesystemservice
+    ports:
+      - "8084:8084"
+    healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8084/actuator/health || exit 1"]
+        interval: 10s
+        timeout: 5s
+        retries: 10
