@@ -5,19 +5,19 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                bat 'mvn clean install'
+                bat 'docker-compose build --no-cache'
             }
         }
         stage('Test') {
             steps {
                 echo 'Testing...'
-                bat 'mvn test'
+                bat 'docker-compose up'
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                bat 'mvn spring-boot:run'
+                bat 'docker-compose up'
             }
         }
     }
