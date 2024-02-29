@@ -3,30 +3,44 @@ pipeline {
 
     stages {
         stage('Build') {
-            echo 'Building...'
-            dir('authenticationservice') {
-                sh 'mvn clean install'
-            }
-            dir('filesystemservice') {
-                sh 'mvn clean install'
-            }
-            dir('uploadvideo') {
-                sh 'mvn clean install'
-            }
-            dir('videostreaming') {
-                sh 'mvn clean install'
+            steps {
+                echo 'Building...'
+                dir('authenticationservice') {
+                    catchError(buildResult: 'UNSTABLE', message: 'Authentication Service build failed') {
+                        sh 'mvn clean install'
+                    }
+                }
+                dir('filesystemservice') {
+                    catchError(buildResult: 'UNSTABLE', message: 'Filesystem Service build failed') {
+                        sh 'mvn clean install'
+                    }
+                }
+                dir('uploadvideo') {
+                    catchError(buildResult: 'UNSTABLE', message: 'Upload Video build failed') {
+                        sh 'mvn clean install'
+                    }
+                }
+                dir('videostreaming') {
+                    catchError(buildResult: 'UNSTABLE', message: 'Video Streaming build failed') {
+                        sh 'mvn clean install'
+                    }
+                }
             }
         }
         stage('Docker-Build') {
             steps {
                 echo 'Building Docker...'
-                bat 'docker-compose build --no-cache'
+                catchError(buildResult: 'FAILURE', message: 'Docker build failed') {
+                    bat 'docker-compose build --no-cache'
+                }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                bat 'docker-compose up'
+                catchError(buildResult: 'FAILURE', message: 'Docker-compose up failed') {
+                    bat 'docker-compose up'
+                }
             }
         }
     }
