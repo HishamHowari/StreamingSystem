@@ -5,22 +5,22 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                dir('./authenticationservice') {
+                dir('authenticationservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Authentication Service build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('./filesystemservice') {
+                dir('filesystemservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Filesystem Service build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('./uploadvideo') {
+                dir('uploadvideo') {
                     catchError(buildResult: 'UNSTABLE', message: 'Upload Video build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('./videostreaming') {
+                dir('videostreaming') {
                     catchError(buildResult: 'UNSTABLE', message: 'Video Streaming build failed') {
                         sh 'mvn clean install'
                     }
@@ -30,18 +30,40 @@ pipeline {
         stage('Docker-Build') {
             steps {
                 echo 'Building Docker...'
-                catchError(buildResult: 'FAILURE', message: 'Docker build failed') {
-                    bat 'docker-compose build --no-cache'
+                script {
+                    if (isUnix()) {
+                        catchError(buildResult: 'FAILURE', message: 'Docker build failed') {
+                            sh 'docker-compose build --no-cache'
+                        }
+                    } else {
+                        catchError(buildResult: 'FAILURE', message: 'Docker build failed') {
+                            bat 'docker-compose build --no-cache'
+                        }
+                    }
                 }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                catchError(buildResult: 'FAILURE', message: 'Docker-compose up failed') {
-                    bat 'docker-compose up'
+                script {
+                    if (isUnix()) {
+                        catchError(buildResult: 'FAILURE', message: 'Docker-compose up failed') {
+                            sh 'docker-compose up'
+                        }
+                    } else {
+                        catchError(buildResult: 'FAILURE', message: 'Docker-compose up failed') {
+                            bat 'docker-compose up'
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+def isUnix() {
+    return System.properties['os.name'].toLowerCase().contains('nix') ||
+           System.properties['os.name'].toLowerCase().contains('nux') ||
+           System.properties['os.name'].toLowerCase().contains('mac')
 }
