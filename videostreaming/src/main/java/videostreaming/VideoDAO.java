@@ -4,7 +4,6 @@ import java.util.List;
 
 public class VideoDAO extends DAO{
     public boolean saveVideo(Video video) {
-        // Save the video to the database
         String query = "INSERT INTO Video (title, videoPath, description, ownerUsername) VALUES (?, ?, ?, ?)";
         int rowsAffected = jdbcTemplate.update(query, video.getTitle(), video.getVideoPath(), video.getDescription(), video.getOwnerUsername());
         return rowsAffected > 0;
