@@ -5,22 +5,22 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building...'
-                dir('authenticationservice') {
+                dir('./authenticationservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Authentication Service build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('filesystemservice') {
+                dir('./filesystemservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Filesystem Service build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('uploadvideo') {
+                dir('./uploadvideo') {
                     catchError(buildResult: 'UNSTABLE', message: 'Upload Video build failed') {
                         sh 'mvn clean install'
                     }
                 }
-                dir('videostreaming') {
+                dir('./videostreaming') {
                     catchError(buildResult: 'UNSTABLE', message: 'Video Streaming build failed') {
                         sh 'mvn clean install'
                     }
