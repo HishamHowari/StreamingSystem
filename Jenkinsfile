@@ -7,22 +7,22 @@ pipeline {
                 echo 'Building...'
                 dir('authenticationservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Authentication Service build failed') {
-                        bat 'mvn clean install'
+                        bat '"C:\\apache-maven-3.9.6\\bin\\mvn" clean install'
                     }
                 }
                 dir('filesystemservice') {
                     catchError(buildResult: 'UNSTABLE', message: 'Filesystem Service build failed') {
-                        bat 'mvn clean install'
+                        bat '"C:\\apache-maven-3.9.6\\bin\\mvn" clean install'
                     }
                 }
                 dir('uploadvideo') {
                     catchError(buildResult: 'UNSTABLE', message: 'Upload Video build failed') {
-                        bat 'mvn clean install'
+                        bat '"C:\\apache-maven-3.9.6\\bin\\mvn" clean install'
                     }
                 }
                 dir('videostreaming') {
                     catchError(buildResult: 'UNSTABLE', message: 'Video Streaming build failed') {
-                        bat 'mvn clean install'
+                        bat '"C:\\apache-maven-3.9.6\\bin\\mvn" clean install'
                     }
                 }
             }
